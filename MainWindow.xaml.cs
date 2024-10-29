@@ -1,5 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace dzwieki_egz
+namespace WpfApp1
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -23,60 +27,65 @@ namespace dzwieki_egz
         public MainWindow()
         {
             InitializeComponent();
-            przygDane();
+            odczytajDane();
+            getDane(aktualny);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            aktualny--;
-            if(aktualny < 0 )
-            {
-                aktualny = dzwieki.Count - 1;
-            }
-            wykonawca_name.Text = dzwieki[aktualny].getWykonawca();
+            licznik_pobran++;
+            dzwieki[aktualny].setLiczPob(1);
+            getDane(aktualny);
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-
+            aktualny++;
+            if(aktualny > dzwieki.Count-1)
+            {
+                aktualny = 0;
+            }
+            getDane(aktualny);
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+            aktualny--;
+            if (aktualny < 0)
+            {
+                aktualny = dzwieki.Count - 1;
+            }
 
+            getDane(aktualny);
         }
 
-        void przygDane()
+        void getDane(int a)
+        {
+            wykonawca_name.Text = dzwieki[a].getWykonawca();
+            tytul_album.Text = dzwieki[a].getTytulAlb();
+            liczba_utw.Text = dzwieki[a].getliczUt().ToString()+" utworów";
+            rok_wydania.Text = dzwieki[a].getRokWyd().ToString();
+            liczba_pobran.Content = dzwieki[a].getLiczPob().ToString();
+        }
+        
+
+        void odczytajDane()
         {
             StreamReader streamReader = new StreamReader("../../../Data.txt");
-            string wykonawca = streamReader.ReadLine(); 
-            string tytul = streamReader.ReadLine(); 
-            string liczba_ut = streamReader.ReadLine(); 
-            string rok_wyd = streamReader.ReadLine(); 
-            string liczba_pob = streamReader.ReadLine();
-            
-            for(int i = 0; i<dzwieki.Count; i++)
-            {
-                if(streamReader.ReadLine() == null)
-                {
-                    i++;
-                }
-                else
-                {
-                    dzwieki.Add(new Dzwieki(wykonawca,tytul,liczba_ut,rok_wyd,liczba_pob));
-                }
+            string wykonawca, tytul;
+            int liczba_ut, rok_wyd, liczba_pob;
 
-                wykonawca = streamReader.ReadLine();
+            while((wykonawca = streamReader.ReadLine()) != null)
+            {
                 tytul = streamReader.ReadLine();
-                liczba_ut = streamReader.ReadLine();
-                rok_wyd = streamReader.ReadLine();
-                liczba_pob = streamReader.ReadLine();
+                liczba_ut = int.Parse(streamReader.ReadLine());
+                rok_wyd = int.Parse(streamReader.ReadLine());
+                liczba_pob = int.Parse(streamReader.ReadLine());
+                streamReader.ReadLine();
+                dzwieki.Add(new Dzwieki(wykonawca, tytul, liczba_ut, rok_wyd, liczba_pob));
             }
 
             streamReader.Close();
         }
-
-        //zwiększ licznik pobrań po kliknięciu przycisku Pobierz
-        //dodaj karuzelę
     }
 }
